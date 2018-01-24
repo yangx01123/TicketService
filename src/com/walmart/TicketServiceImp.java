@@ -19,20 +19,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * Reserve and commit a specific group of held seats for a customer
  */
 public class TicketServiceImp implements TicketService {
-    private static ConcurrentHashMap.KeySetView<Seat, Boolean> vacant;
-    private static ConcurrentHashMap.KeySetView<Seat, Boolean> holded;
-    private static ConcurrentHashMap.KeySetView<Seat, Boolean> committed;
+    private static ConcurrentHashMap.KeySetView<Seat, Boolean> _vacant;
+    private static ConcurrentHashMap.KeySetView<Seat, Boolean> _holded;
+    private static ConcurrentHashMap.KeySetView<Seat, Boolean> _committed;
     private static SeatHoldingMap seatHoldings;
     private static Timer timer;
     private static int interval;
 
     public TicketServiceImp() {
-        vacant = ConcurrentHashMap.newKeySet();
+        _vacant = ConcurrentHashMap.newKeySet();
         for (int i = 0; i < Config.totalNumSeats; i++) {
-            vacant.add(new Seat(i));
+            _vacant.add(new Seat(i));
         }
-        holded = ConcurrentHashMap.newKeySet();
-        committed = ConcurrentHashMap.newKeySet();
+        _holded = ConcurrentHashMap.newKeySet();
+        _committed = ConcurrentHashMap.newKeySet();
         seatHoldings = new SeatHoldingMap();
         // start a thread to scan and remove expired items.
         timer = new Timer();
@@ -45,7 +45,7 @@ public class TicketServiceImp implements TicketService {
                     if (stalePoint > entry.getValue().get_creationTime()) {
                         seatHoldings.remove(entry.getKey());
                         for (Seat s : entry.getValue().get_seats()) {
-                            moveSeat(holded, vacant, s);
+                            moveSeat(_holded, _vacant, s);
                         }
                     }
                 }
@@ -58,17 +58,17 @@ public class TicketServiceImp implements TicketService {
 
     @Override
     public int numSeatsAvailable() {
-        return vacant.size();
+        return _vacant.size();
     }
 
     @Override
     public SeatHold findAndHoldSeats(int numSeats, String customerEmail) {
         int i = numSeats;
         SeatHold seatHold = new SeatHold();
-        for (Iterator<Seat> it = vacant.iterator(); it.hasNext() && 0 < i; --i) {
+        for (Iterator<Seat> it = _vacant.iterator(); it.hasNext() && 0 < i; --i) {
             Seat s = it.next();
             s.set_customerEmail(customerEmail);
-            moveSeat(vacant, holded, s);
+            moveSeat(_vacant, _holded, s);
             seatHold.addSeat(s);
         }
         seatHoldings.put(seatHold.get_id(), seatHold);
@@ -84,7 +84,7 @@ public class TicketServiceImp implements TicketService {
         for (Seat s : sh.get_seats()) {
             s.set_confirmCode(confirmationCode);
             s.set_customerEmail(customerEmail);
-            moveSeat(holded, committed, s);
+            moveSeat(_holded, _committed, s);
         }
         seatHoldings.remove(seatHoldId);
         return confirmationCode;
@@ -92,12 +92,25 @@ public class TicketServiceImp implements TicketService {
 
     @Override
     public String toString() {
-        return String.format("[vacant: %d, holded: %d, committed: %d]", vacant.size(), holded.size(), committed.size());
+        return String.format("[_vacant: %d, _holded: %d, _committed: %d]", _vacant.size(), _holded.size(), _committed.size());
     }
 
     private void moveSeat(ConcurrentHashMap.KeySetView<Seat, Boolean> src,
                           ConcurrentHashMap.KeySetView<Seat, Boolean> dst, Seat s) {
         dst.add(s);
         src.remove(s);
+    }
+
+    public ConcurrentHashMap.KeySetView<Seat, Boolean> get(Config.pool fieldname) {
+        switch (fieldname) {
+            case vacant:
+                return _vacant;
+            case holded:
+                return _holded;
+            case committed:
+                return _committed;
+            default:
+                return null;
+        }
     }
 }

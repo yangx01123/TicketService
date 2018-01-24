@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Created by Yang on 20/01/2018.
+ * Unique ID generator.
  */
 public class UniqId {
     private static final AtomicLong LAST_TIME_MS = new AtomicLong();
@@ -23,7 +23,10 @@ public class UniqId {
         return instance;
     }
 
-
+    /**
+     * Get unique long value by current system time in milliseconds.
+     * @return long value that unique among other callers.
+     */
     public long uniqueCurrentTimeMS() {
         long now = System.currentTimeMillis();
         while (true) {
@@ -39,11 +42,4 @@ public class UniqId {
         return at.incrementAndGet();
     }
 
-    public static void main(String[] args) {
-        System.out.println(UniqId.getInstance().uniqueCurrentTimeMS());
-        //1516461379366
-        //1516461393705
-        //1516461412493
-        System.out.println(UniqId.getInstance().uniqueInt());
-    }
 }

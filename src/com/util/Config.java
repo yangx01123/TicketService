@@ -1,7 +1,7 @@
 package com.util;
 
 /**
- * Created by Yang on 21/01/2018.
+ * System configuration variables.
  */
 public class Config {
     public static int totalNumSeats = 297;

@@ -1,6 +1,5 @@
 package com.walmart;
 
-import com.util.Config;
 import com.util.UniqId;
 
 import java.util.Iterator;
@@ -8,6 +7,10 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.util.Config.holdingAge;
+import static com.util.Config.totalNumSeats;
+import static com.util.Config.pool;
 
 /**
  * Find the number of seats available within the venue
@@ -22,25 +25,24 @@ public class TicketServiceImp implements TicketService {
     private static ConcurrentHashMap.KeySetView<Seat, Boolean> _vacant;
     private static ConcurrentHashMap.KeySetView<Seat, Boolean> _holded;
     private static ConcurrentHashMap.KeySetView<Seat, Boolean> _committed;
-    private static SeatHoldingMap seatHoldings;
+    private static ConcurrentHashMap<Integer, SeatHold> seatHoldings;
     private static Timer timer;
     private static int interval;
 
     public TicketServiceImp() {
         _vacant = ConcurrentHashMap.newKeySet();
-        for (int i = 0; i < Config.totalNumSeats; i++) {
+        for (int i = 0; i < totalNumSeats; i++) {
             _vacant.add(new Seat(i));
         }
         _holded = ConcurrentHashMap.newKeySet();
         _committed = ConcurrentHashMap.newKeySet();
-        seatHoldings = new SeatHoldingMap();
+        seatHoldings = new ConcurrentHashMap<>();
         // start a thread to scan and remove expired items.
         timer = new Timer();
-        interval = Config.holdingAge;
+        interval = holdingAge;
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-//                seatHoldings.cleanExpiredSeatHold(Config.holdingAge);
-                long stalePoint = System.nanoTime() - Config.holdingAge * 1000000000;
+                long stalePoint = System.nanoTime() - holdingAge * 1000000000;
                 for (Map.Entry<Integer, SeatHold> entry : seatHoldings.entrySet()) {
                     if (stalePoint > entry.getValue().get_creationTime()) {
                         seatHoldings.remove(entry.getKey());
@@ -92,7 +94,7 @@ public class TicketServiceImp implements TicketService {
 
     @Override
     public String toString() {
-        return String.format("[_vacant: %d, _holded: %d, _committed: %d]", _vacant.size(), _holded.size(), _committed.size());
+        return String.format("[vacant: %d, holded: %d, committed: %d]", _vacant.size(), _holded.size(), _committed.size());
     }
 
     private void moveSeat(ConcurrentHashMap.KeySetView<Seat, Boolean> src,
@@ -101,8 +103,8 @@ public class TicketServiceImp implements TicketService {
         src.remove(s);
     }
 
-    public ConcurrentHashMap.KeySetView<Seat, Boolean> get(Config.pool fieldname) {
-        switch (fieldname) {
+    public ConcurrentHashMap.KeySetView<Seat, Boolean> get(pool fieldName) {
+        switch (fieldName) {
             case vacant:
                 return _vacant;
             case holded:

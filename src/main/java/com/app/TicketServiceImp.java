@@ -1,4 +1,4 @@
-package com.walmart;
+package com.app;
 
 import com.util.UniqId;
 
@@ -79,7 +79,7 @@ public class TicketServiceImp implements TicketService {
 
     @Override
     public String reserveSeats(int seatHoldId, String customerEmail) {
-        String confirmationCode = String.valueOf(UniqId.getInstance().uniqueCurrentTimeMS());
+        String confirmationCode = String.valueOf(UniqId.uniqueCurrentTimeMS());
         SeatHold sh = seatHoldings.get(seatHoldId);
         if (sh == null)
             return "Invalid";

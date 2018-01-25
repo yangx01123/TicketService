@@ -10,24 +10,12 @@ public class UniqId {
     private static final AtomicLong LAST_TIME_MS = new AtomicLong();
     private static AtomicInteger at = new AtomicInteger(0);
 
-    // Singleton
-    private volatile static UniqId instance;
-    public static UniqId getInstance() {
-        if (instance == null) {
-            synchronized (UniqId.class) {
-                if (instance == null) {
-                    instance = new UniqId();
-                }
-            }
-        }
-        return instance;
-    }
-
     /**
-     * Get unique long value by current system time in milliseconds.
+     * Get an unique long value from system time.
+     *
      * @return long value that unique among other callers.
      */
-    public long uniqueCurrentTimeMS() {
+    public static synchronized long uniqueCurrentTimeMS() {
         long now = System.currentTimeMillis();
         while (true) {
             long lastTime = LAST_TIME_MS.get();
@@ -38,7 +26,12 @@ public class UniqId {
         }
     }
 
-    public int uniqueInt() {
+    /**
+     * Get an unique int value.
+     *
+     * @return int value that unique among other callers.
+     */
+    public static synchronized int uniqueInt() {
         return at.incrementAndGet();
     }
 

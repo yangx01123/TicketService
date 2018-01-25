@@ -1,4 +1,4 @@
-package com.walmart;
+package com.app;
 
 /**
  * TicketService interface

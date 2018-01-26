@@ -1,3 +1,10 @@
+package com.util;
+
+import static org.junit.Assert.*;
+
+/**
+ * Created by Yang on 25/01/2018.
+ */
 import com.util.UniqId;
 import org.junit.Test;
 
@@ -6,7 +13,7 @@ import static org.junit.Assert.assertNotSame;
 /**
  * Test class for UniqId.
  */
-public class UniqId_test {
+public class UniqIdTest {
 
     @Test
     public void uniqValidation() {

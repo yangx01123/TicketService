@@ -1,11 +1,23 @@
 package com.util;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.ResourceBundle;
+
 /**
  * System configuration variables.
  */
 public class Config {
-    public static int totalNumSeats = 297;
-    public static int holdingAge = 5;
+    public static int totalNumSeats;
+    public static int holdingAge;
+
+    static {
+        ResourceBundle rb = ResourceBundle.getBundle("config");
+        totalNumSeats = Integer.valueOf(rb.getString("totalNumSeats"));
+        holdingAge = Integer.valueOf(rb.getString("holdingAge"));
+    }
 
     public enum pool {
         vacant, holded, committed

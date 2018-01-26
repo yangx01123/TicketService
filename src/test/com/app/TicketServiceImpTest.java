@@ -1,5 +1,5 @@
-import com.app.SeatHold;
-import com.app.TicketServiceImp;
+package com.app;
+
 import com.util.UniqId;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNotSame;
 /**
  * Test class for TicketServiceImp.
  */
-public class TicketServiceImp_test {
+public class TicketServiceImpTest {
     private TicketServiceImp tsi = new TicketServiceImp();
 
     @Test

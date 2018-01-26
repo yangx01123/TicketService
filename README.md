@@ -14,13 +14,13 @@ It involves operations:
 [Maven 3.1.0+](https://maven.apache.org/download.cgi)
 
 #### Build
-Command to build a jar file
+Command to build a jar file.
 ```
 mvn clean install
 ```
 
 #### Test
-Command to run all unit tests
+Command to run all unit tests.
 ```
 mvn test
 ```
@@ -33,4 +33,17 @@ In your project, add the dependency below to your pom.xml file.
   <artifactId>ticketservice</artifactId>
   <version>1.0-SNAPSHOT</version>
 </dependency>
+```
+
+#### Config
+After build, 2 configure files can be used for application and log settings.
+```
+<project_root>/target/test-classes/config.properties
+<project_root>/target/test-classes/log4j2.xml
+```
+
+#### Log
+After build, a log file can be found at.
+```
+<project_root>/all.log
 ```

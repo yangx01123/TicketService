@@ -1,4 +1,4 @@
-package com.walmart;
+package com.app;
 
 public class Seat {
     private int _id;
@@ -31,7 +31,7 @@ public class Seat {
 
     @Override
     public String toString() {
-        return String.format("[SeatId: %s, ConfirmCode: %s, CustomerEmail: %s]", _id, _confirmCode, _customerEmail);
+        return String.format("[SeatId: %s, ConfirmCode: %s, CustomerEmail: %s]", get_id(), get_confirmCode(), get_customerEmail());
     }
 }
 

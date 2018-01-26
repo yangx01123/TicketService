@@ -1,10 +1,7 @@
-package com.walmart;
+package com.app;
 
-import com.util.Config;
 import com.util.UniqId;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -16,7 +13,7 @@ public class SeatHold {
     private long _creationTime;
 
     public SeatHold() {
-        _id = UniqId.getInstance().uniqueInt();
+        _id = UniqId.uniqueInt();
         _seats = ConcurrentHashMap.newKeySet();
         _creationTime = System.nanoTime();
     }

@@ -5,13 +5,12 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by Yang on 25/01/2018.
+ * Tester for Config class.
  */
 public class ConfigTest {
     @Test
     public void valueLoading() {
-        Config cf = new Config();
-        assertEquals("", 297, Config.totalNumSeats);
-        assertEquals("", 5, Config.holdingAge);
+        assertEquals("Validate 'totalNumSeats' from configure file", 297, Config.totalNumSeats);
+        assertEquals("Validate 'holdingAge' from configure file", 5, Config.holdingAge);
     }
 }

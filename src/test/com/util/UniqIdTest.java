@@ -1,28 +1,27 @@
 package com.util;
 
-import static org.junit.Assert.*;
-
-/**
- * Created by Yang on 25/01/2018.
- */
-import com.util.UniqId;
 import org.junit.Test;
 
+import java.util.HashSet;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
 /**
- * Test class for UniqId.
+ * Tester for UniqId class.
  */
 public class UniqIdTest {
 
     @Test
     public void uniqValidation() {
         int numberRun = 50;
+        HashSet<Long> longSet = new HashSet<>();
+        HashSet<Integer> intSet = new HashSet<>();
         for (int i = 0; i < numberRun; i++) {
-            assertNotSame("Validate uniqueness of long",
-                    UniqId.uniqueCurrentTimeMS(), UniqId.uniqueCurrentTimeMS());
-            assertNotSame("Validate uniqueness of int",
-                    UniqId.uniqueInt(), UniqId.uniqueInt());
+            assertEquals("Check uniqueness of long generator",
+                    true, longSet.add(UniqId.uniqueCurrentTimeMS()));
+            assertEquals("Check uniqueness of int generator",
+                    true, intSet.add(UniqId.uniqueInt()));
         }
     }
 }

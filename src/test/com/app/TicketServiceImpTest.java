@@ -1,10 +1,11 @@
 package com.app;
 
-import com.util.UniqId;
+import com.util.Log;
 import org.junit.Test;
 
+import com.util.UniqId;
+
 import static com.util.Config.holdingAge;
-import static com.util.Config.pool.*;
 import static com.util.Config.totalNumSeats;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
@@ -13,6 +14,7 @@ import static org.junit.Assert.assertNotSame;
  * Test class for TicketServiceImp.
  */
 public class TicketServiceImpTest {
+
     private TicketServiceImp tsi = new TicketServiceImp();
 
     @Test
@@ -31,7 +33,9 @@ public class TicketServiceImpTest {
 
     @Test
     public void reserveSeats() throws Exception {
-
+        sleep(holdingAge + 1);
+        reserveMatch(totalNumSeats);
+        sleep(holdingAge + 1);
     }
 
     @Test
@@ -39,27 +43,27 @@ public class TicketServiceImpTest {
         int numSeats = 10;
 
         SeatHold sh = tsi.findAndHoldSeats(numSeats, getTestEmail());
+        Log.logHold(sh, tsi);
         int firstId = sh.get_id();
         sleep(holdingAge + 1);
-        assertEquals("Test of expired holdings (vacant pool) " + tsi, totalNumSeats, tsi.get(vacant).size());
-        assertEquals("Test of expired holdings (holded pool) " + tsi, 0, tsi.get(holded).size());
-        assertEquals("Test of expired holdings (committed pool) " + tsi, 0, tsi.get(committed).size());
+        assertEquals("Test expired holdings (vacant pool)", totalNumSeats, tsi.get_vacant().size());
+        assertEquals("Test expired holdings (holded pool)", 0, tsi.get_holded().size());
+        assertEquals("Test expired holdings (reserved pool)", 0, tsi.get_reserved().size());
 
         sh = tsi.findAndHoldSeats(numSeats, getTestEmail());
+        Log.logHold(sh, tsi);
         int secondId = sh.get_id();
-        assertEquals("Test of non-expired holdings (vacant pool) " + tsi, totalNumSeats - numSeats, tsi.get(vacant).size());
-        assertEquals("Test of non-expired holdings (holded pool) " + tsi, numSeats, tsi.get(holded).size());
-        assertEquals("Test of non-expired holdings (committed pool) " + tsi, 0, tsi.get(committed).size());
+        assertEquals("Test non-expired holdings (vacant pool)", totalNumSeats - numSeats, tsi.get_vacant().size());
+        assertEquals("Test non-expired holdings (holded pool)", numSeats, tsi.get_holded().size());
+        assertEquals("Test non-expired holdings (reserved pool)", 0, tsi.get_reserved().size());
 
         assertNotSame(String.format("SeatHold ID: %s should be different from SeatHold ID: %s", firstId, secondId), firstId, secondId);
 
         String confirmCode = tsi.reserveSeats(secondId, getTestEmail());
-        assertEquals("Test of committed holdings (vacant pool) " + tsi, totalNumSeats - numSeats, tsi.get(vacant).size());
-        assertEquals("Test of committed holdings (holded pool) " + tsi, 0, tsi.get(holded).size());
-        assertEquals("Test of committed holdings (committed pool) " + tsi, numSeats, tsi.get(committed).size());
-        System.out.println(sh);
-        System.out.println(confirmCode);
-        System.out.println(tsi);
+        Log.logReserve(sh, confirmCode, tsi);
+        assertEquals("Test reserved holdings (vacant pool)", totalNumSeats - numSeats, tsi.get_vacant().size());
+        assertEquals("Test reserved holdings (holded pool)", 0, tsi.get_holded().size());
+        assertEquals("Test reserved holdings (reserved pool)", numSeats, tsi.get_reserved().size());
     }
 
     @Test
@@ -71,7 +75,8 @@ public class TicketServiceImpTest {
         r1.run();
         r2.run();
         r3.run();
-        assertEquals("Test of holding competing", totalNumSeats, tsi.get(vacant).size() + tsi.get(holded).size() + tsi.get(committed).size());
+        assertEquals("Test holding competing",
+                totalNumSeats, tsi.get_vacant().size() + tsi.get_holded().size() + tsi.get_reserved().size());
     }
 
     @Test
@@ -83,14 +88,14 @@ public class TicketServiceImpTest {
         r1.run();
         r2.run();
         r3.run();
-        assertEquals("Test of reserve competing", totalNumSeats, tsi.get(vacant).size() + tsi.get(holded).size() + tsi.get(committed).size());
+        assertEquals("Test reserve competing", totalNumSeats, tsi.get_vacant().size() + tsi.get_holded().
+                size() + tsi.get_reserved().size());
     }
 
     private Runnable createHoldThread(int numSeats) {
         return () -> {
             SeatHold sh = tsi.findAndHoldSeats(numSeats, getTestEmail());
-            System.out.println(sh.get_seats().size());
-            System.out.println(tsi);
+            Log.logHold(sh, tsi);
         };
     }
 
@@ -98,9 +103,7 @@ public class TicketServiceImpTest {
         return () -> {
             SeatHold sh = tsi.findAndHoldSeats(numSeats, getTestEmail());
             String confirmCode = tsi.reserveSeats(sh.get_id(), getTestEmail());
-            System.out.println(confirmCode);
-            System.out.println(sh.get_seats().size());
-            System.out.println(tsi);
+            Log.logReserve(sh, confirmCode, tsi);
         };
     }
 
@@ -113,8 +116,18 @@ public class TicketServiceImpTest {
         if (numHoldSeats > totalNumSeats)
             expected = totalNumSeats;
         SeatHold sh = tsi.findAndHoldSeats(numHoldSeats, getTestEmail());
+        Log.logHold(sh, tsi);
         assertEquals(expected, sh.get_seats().size());
-        System.out.println(sh);
+    }
+
+    private void reserveMatch(int numReserveSeats) {
+        int expected = numReserveSeats;
+        if (numReserveSeats > totalNumSeats)
+            expected = totalNumSeats;
+        SeatHold sh = tsi.findAndHoldSeats(numReserveSeats, getTestEmail());
+        String confirmCode = tsi.reserveSeats(sh.get_id(), getTestEmail());
+        Log.logReserve(sh, confirmCode, tsi);
+        assertEquals(expected, tsi.get_reserved().size());
     }
 
     private void sleep(int sec) {

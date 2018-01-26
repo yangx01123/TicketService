@@ -1,9 +1,5 @@
 package com.util;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.ResourceBundle;
 
 /**
@@ -17,9 +13,5 @@ public class Config {
         ResourceBundle rb = ResourceBundle.getBundle("config");
         totalNumSeats = Integer.valueOf(rb.getString("totalNumSeats"));
         holdingAge = Integer.valueOf(rb.getString("holdingAge"));
-    }
-
-    public enum pool {
-        vacant, holded, committed
     }
 }
